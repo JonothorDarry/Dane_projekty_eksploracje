@@ -14270,8 +14270,12 @@ a.anchor-link {
 <span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">urllib</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">math</span>
 
 <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
 <span class="c1">#%pip install --upgrade google-api-python-client</span>
 <span class="c1">#%pip install --upgrade google-auth-oauthlib google-auth-httplib2</span>
 <span class="c1">#%pip install google-api-python-client</span>
@@ -14911,7 +14915,9 @@ Name: licensedContent, Length: 1000, dtype: object
     <span class="s1">&#39;hsv_hue_mean&#39;</span><span class="p">,</span> <span class="c1">#Bezsensowny atrybut</span>
     <span class="s1">&#39;channelId&#39;</span><span class="p">,</span> <span class="c1">#Pokazano tożsamość z tytułem</span>
     <span class="s1">&#39;duration&#39;</span><span class="p">,</span> <span class="c1">#Zmienione na inny format</span>
-    <span class="s1">&#39;categoryId&#39;</span> <span class="c1">#Overwritten</span>
+    <span class="s1">&#39;categoryId&#39;</span><span class="p">,</span> <span class="c1">#Overwritten</span>
+    <span class="s1">&#39;caption&#39;</span><span class="p">,</span> <span class="c1">#Overwritten</span>
+    <span class="s1">&#39;licensedContent&#39;</span><span class="p">,</span> <span class="c1">#Overwritten</span>
 <span class="p">]</span>
 
 <span class="n">secondary_thrash</span> <span class="o">=</span> <span class="p">[</span>
@@ -14927,10 +14933,80 @@ Name: licensedContent, Length: 1000, dtype: object
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">blend_df_pca</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">neue_df</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+    <span class="n">indexes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">features</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">i</span><span class="p">]):</span>
+            <span class="n">indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>            
+    
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">neue_df</span><span class="p">:</span>
+        <span class="n">proper_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">used</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">indexes</span><span class="p">:</span>
+                <span class="n">proper_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">neue_df</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="n">used</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">proper_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">used</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">proper_list</span>
+    
+    <span class="n">remove_meaningless</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">features</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#With https://towardsdatascience.com/pca-using-python-scikit-learn-e653f8989e60</span>
+<span class="n">feature_groups</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s1">&#39;features&#39;</span><span class="p">:[</span><span class="s1">&#39;rgb_red_std_dev&#39;</span><span class="p">,</span> <span class="s1">&#39;rgb_red_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;rgb_green_std_dev&#39;</span><span class="p">,</span>
+       <span class="s1">&#39;rgb_green_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;rgb_blue_std_dev&#39;</span><span class="p">,</span> <span class="s1">&#39;rgb_blue_mean&#39;</span><span class="p">,</span>
+       <span class="s1">&#39;hsv_hue_std_dev&#39;</span><span class="p">,</span> <span class="s1">&#39;hsv_saturation_std_dev&#39;</span><span class="p">,</span>
+       <span class="s1">&#39;hsv_saturation_mean&#39;</span><span class="p">,</span> <span class="s1">&#39;hsv_value_std_dev&#39;</span><span class="p">,</span> <span class="s1">&#39;hsv_value_mean&#39;</span><span class="p">],</span> 
+    <span class="s1">&#39;components&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;color&#39;</span><span class="p">},</span>
+    
+    <span class="p">{</span><span class="s1">&#39;features&#39;</span><span class="p">:[</span><span class="s1">&#39;view_count&#39;</span><span class="p">,</span> <span class="s1">&#39;likes&#39;</span><span class="p">,</span> <span class="s1">&#39;dislikes&#39;</span><span class="p">,</span> <span class="s1">&#39;comment_count&#39;</span><span class="p">],</span> <span class="s1">&#39;components&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;interpersonal&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;features&#39;</span><span class="p">:[</span><span class="s1">&#39;screams&#39;</span><span class="p">,</span> <span class="s1">&#39;screams_to_normal_proportion&#39;</span><span class="p">],</span> <span class="s1">&#39;components&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;screamy&#39;</span><span class="p">}</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">system</span> <span class="ow">in</span> <span class="n">feature_groups</span><span class="p">:</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">system</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">]</span>
+    <span class="n">n_components</span> <span class="o">=</span> <span class="n">system</span><span class="p">[</span><span class="s1">&#39;components&#39;</span><span class="p">]</span>
+    <span class="n">naming</span> <span class="o">=</span> <span class="n">system</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+    
+    <span class="n">proto_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">features</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">proto_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">features</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    
+    <span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">)</span>
+    <span class="n">principalComponents</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">principalDf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">principalComponents</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">naming</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="o">+</span><span class="n">n_components</span><span class="p">)])</span>
+    <span class="n">blend_df_pca</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">principalDf</span><span class="p">,</span> <span class="n">features</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">post_df</span><span class="p">:</span>
@@ -14961,27 +15037,17 @@ Name: licensedContent, Length: 1000, dtype: object
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>view_count likes 0.8494340567950238
-view_count dislikes 0.8541618628985563
-screams screams_to_normal_proportion 0.8103745606991246
-rgb_red_std_dev rgb_red_mean 0.8306747432280851
-rgb_red_std_dev rgb_green_std_dev 0.8587861316207883
-rgb_red_std_dev hsv_value_std_dev 0.918073965835495
-rgb_green_mean rgb_blue_mean 0.8523883433895134
-rgb_green_mean hsv_value_mean 0.855196758472247
-Index([&#39;index&#39;, &#39;video_id&#39;, &#39;title&#39;, &#39;channelTitle&#39;, &#39;tags&#39;, &#39;view_count&#39;,
-       &#39;comment_count&#39;, &#39;thumbnail_link&#39;, &#39;comments_disabled&#39;,
-       &#39;ratings_disabled&#39;, &#39;description&#39;, &#39;category_name&#39;, &#39;title_length&#39;,
-       &#39;description_length&#39;, &#39;nr_tags&#39;, &#39;link_amount&#39;,
+<pre>Index([&#39;index&#39;, &#39;video_id&#39;, &#39;title&#39;, &#39;channelTitle&#39;, &#39;tags&#39;, &#39;thumbnail_link&#39;,
+       &#39;comments_disabled&#39;, &#39;ratings_disabled&#39;, &#39;description&#39;, &#39;category_name&#39;,
+       &#39;title_length&#39;, &#39;description_length&#39;, &#39;nr_tags&#39;, &#39;link_amount&#39;,
        &#39;interpunction_exclamation&#39;, &#39;interpunction_question&#39;,
-       &#39;interpunction_dot&#39;, &#39;interpunction_comma&#39;, &#39;screams&#39;,
-       &#39;publishedAt_modern&#39;, &#39;trending_date_modern&#39;, &#39;weekday_published&#39;,
-       &#39;time_diff&#39;, &#39;action_canny&#39;, &#39;rgb_red_std_dev&#39;, &#39;rgb_green_mean&#39;,
-       &#39;rgb_blue_std_dev&#39;, &#39;hsv_hue_std_dev&#39;, &#39;hsv_saturation_std_dev&#39;,
-       &#39;hsv_saturation_mean&#39;, &#39;amount_faces&#39;, &#39;emotion&#39;, &#39;writing_thumbnail&#39;,
+       &#39;interpunction_dot&#39;, &#39;interpunction_comma&#39;, &#39;publishedAt_modern&#39;,
+       &#39;trending_date_modern&#39;, &#39;weekday_published&#39;, &#39;time_diff&#39;,
+       &#39;action_canny&#39;, &#39;amount_faces&#39;, &#39;emotion&#39;, &#39;writing_thumbnail&#39;,
        &#39;big_letters_thumbnail&#39;, &#39;small_letters_thumbnail&#39;, &#39;numbers_thumbnail&#39;,
-       &#39;other_thumbnail&#39;, &#39;new_category&#39;, &#39;definition&#39;, &#39;caption&#39;,
-       &#39;licensedContent&#39;, &#39;duration_s&#39;, &#39;licensed_content&#39;, &#39;caption_&#39;],
+       &#39;other_thumbnail&#39;, &#39;new_category&#39;, &#39;definition&#39;, &#39;duration_s&#39;,
+       &#39;licensed_content&#39;, &#39;caption_&#39;, &#39;color_1&#39;, &#39;color_2&#39;, &#39;color_3&#39;,
+       &#39;interpersonal_1&#39;, &#39;interpersonal_2&#39;, &#39;screamy_1&#39;],
       dtype=&#39;object&#39;)
 </pre>
 </div>
@@ -14994,24 +15060,10 @@ Index([&#39;index&#39;, &#39;video_id&#39;, &#39;title&#39;, &#39;channelTitle&#
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#API key: AIzaSyBcuKC265AIGDv-fVx7UCW4g4Gvv_IZtOY</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span> 
 </pre></div>
 
      </div>
